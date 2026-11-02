@@ -193,7 +193,7 @@ class ProvisioningRun:
         nbytes = built.nbytes if built is not None and built.sha256 == loaded else (parts.models.size_for(loaded) or 0)
         self.log.warning("jetlink: following the far end's model %s, nothing to provision", parts.models.name_for(loaded))
         spec = link.ensure(parts, self.client, loaded, nbytes, None, progress=parts.progress.report_with_eta,
-                           should_stop=lambda: self.stop)
+                           should_stop=lambda: self.stop, fetch=False)  # dp: as link.open_link, by sha alone
         parts.progress.report('ready', 1.0, 'engine ready')
         self.log.warning("jetlink: engine ready for %s", spec.sha256[:16])
         return True

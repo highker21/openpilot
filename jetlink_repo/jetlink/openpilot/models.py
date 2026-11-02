@@ -175,6 +175,8 @@ class Models:
     slot = self.op.get(key) if key else None
     slot = slot if isinstance(slot, dict) else {}
     ref = slot['ref'] if isinstance(slot.get('ref'), str) and slot['ref'] else None
+    if ref == 'follow':
+      ref = None  # dp: jetlink_adapter.FOLLOW is "follow the far end", never a model to send
     sha256 = slot['sha256'] if is_sha256(slot.get('sha256')) else None
     pick, at = None, None
     if ref or sha256:

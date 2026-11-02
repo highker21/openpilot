@@ -30,6 +30,16 @@ dp 這層（`dragonpilot/jetlink_adapter` 等）不需要改：API 仍是 3，�
 
 - `openpilot/models.py` `default_chosen_at()`：0.8.13 把「清空模型欄位」當成「選了預設模型」，會在 hello 裡把預設模型送給手機，讓手機換掉自己選的模型。dp 清空欄位的意思是「跟隨外部裝置」，所以跟隨時一律回 None。
 
+- `openpilot/models.py` `selected_slot()`：欄位若寫著 `{'ref': 'follow'}`（dp 的跟隨記號），當成沒有選，不會把 `follow` 當模型送出。
+- `openpilot/provision.py` 跟隨且外部裝置已載入時，`ensure(..., fetch=False)`，與 `link.open_link` 一致（fork 原本只靠 sha 詢問）。
+
+## 跟隨模式下的行為（請注意）
+
+- 跟隨時 hello 不帶 comma 的選擇，外部裝置的選擇不會被換掉。
+- 跟隨時 `selected_model()` 回傳伺服器（手機／Jetson）選的模型，所以 comma 畫面上顯示的模型名稱就是對方選的那個；外部裝置什麼都沒有時，給的也是伺服器的選擇，沒有才是預設。
+- `adopt()`：dp 沒有 `Keys.select`，所以不會把伺服器的選擇寫成 comma 的固定選擇，跟隨模式維持跟隨。
+- 上游「清空欄位＝選預設模型」在 dp 不適用：要用預設模型，請在模型清單裡明確點選它。
+
 ## 驗證（無實機）
 
 - 上游測試（合併後套件，Python 3.12）：`tests/openpilot` 663 通過、3 略過。
