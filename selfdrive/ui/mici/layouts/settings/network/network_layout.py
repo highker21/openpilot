@@ -24,7 +24,7 @@ class NetworkLayoutMici(NavScroller):
     # ******** Tethering ********
     def tethering_toggle_callback(checked: bool):
       # dp - persist user's tethering preference so it survives reboot
-      ui_state.params.put_bool_nonblocking("dp_dev_tethering", checked)
+      ui_state.params.put_bool("dp_dev_tethering", checked)
       self._tethering_toggle_btn.set_enabled(False)
       self._tethering_password_btn.set_enabled(False)
       self._network_metered_btn.set_enabled(False)

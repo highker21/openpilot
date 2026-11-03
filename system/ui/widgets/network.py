@@ -176,7 +176,7 @@ class AdvancedNetworkSettings(Widget):
 
   def _toggle_tethering(self):
     checked = self._tethering_action.get_state()
-    self._params.put_bool_nonblocking("dp_dev_tethering", checked)
+    self._params.put_bool("dp_dev_tethering", checked)
     self._tethering_action.set_enabled(False)
     if checked:
       self._wifi_metered_action.set_enabled(False)
