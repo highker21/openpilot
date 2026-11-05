@@ -97,6 +97,10 @@ _services: dict[str, tuple] = {
   "carStateExt": (True, 100.),
   "modelExt": (True, 20.),
   "dashyState": (True, 0.),    # Aggregated dashy UI state (optional)
+  # dp - mapd (display only; nothing in controls subscribes)
+  "mapdOut": (True, 20., 20, QueueSize.MEDIUM),
+  "mapdExtendedOut": (False, 1., None, QueueSize.MEDIUM),
+  "mapdIn": (False, 0., None, QueueSize.MEDIUM),
 }
 SERVICE_LIST = {name: Service(*vals) for
                 idx, (name, vals) in enumerate(_services.items())}

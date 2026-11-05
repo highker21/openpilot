@@ -85,6 +85,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"LocationFilterInitialState", {PERSISTENT, BYTES}},
     {"LateralManeuverMode", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
     {"LongitudinalManeuverMode", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, BOOL}},
+    {"MapdSettings", {PERSISTENT, JSON}},  // dp - mapd
     {"LongitudinalPersonality", {PERSISTENT, INT, std::to_string(static_cast<int>(cereal::LongitudinalPersonality::STANDARD))}},
     {"NetworkMetered", {PERSISTENT, BOOL}},
     {"ObdMultiplexingChanged", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, BOOL}},
@@ -179,4 +180,5 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"dp_ui_hide_hud_speed_kph", {PERSISTENT, INT, "0"}},
     {"dp_ui_lead", {PERSISTENT, INT, "0"}},
     {"dp_ui_rainbow", {PERSISTENT, BOOL, "0"}},
+    {"dp_ui_map_display", {PERSISTENT, BOOL, "0"}},
 };

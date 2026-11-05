@@ -61,6 +61,10 @@ def qcomgps(started: bool, params: Params, CP: car.CarParams) -> bool:
 def beep(started: bool, params: Params, CP: car.CarParams) -> bool:
   return started and params.get_bool("dp_dev_beep")
 
+def map_display(started: bool, params: Params, CP: car.CarParams) -> bool:
+  # dp - mapd: runs on- and offroad (offroad for map downloads) while the toggle is on
+  return params.get_bool("dp_ui_map_display")
+
 def always_run(started: bool, params: Params, CP: car.CarParams) -> bool:
   return True
 
@@ -180,6 +184,9 @@ procs = [
   PythonProcess("webrtcd", "system.webrtc.webrtcd", or_(notcar, opview)),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
   PythonProcess("joystick", "tools.joystick.joystick_control", and_(joystick, iscar)),
+
+  # dp - mapd: display only, nothing in controls reads mapdOut
+  NativeProcess("mapd", "selfdrive", ["./mapd"], map_display, enabled=not PC),
 
   # dashy
   PythonProcess("serverd", "dragonpilot.dashy.serverd", always_run),

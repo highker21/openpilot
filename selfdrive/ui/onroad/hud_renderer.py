@@ -11,6 +11,7 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
 from openpilot.selfdrive.ui.ui_state import JetlinkState
 from dragonpilot.selfdrive.ui import jetlink_ui
+from dragonpilot.selfdrive.ui.map_info import draw_map_info
 
 # Constants
 SET_SPEED_NA = 255
@@ -126,6 +127,11 @@ class HudRenderer(Widget):
 
     if self.is_cruise_available:
       self._draw_set_speed(rect)
+
+    # dp - mapd: speed limit sign and hints under the MAX box (display only)
+    set_speed_width = UI_CONFIG.set_speed_width_metric if ui_state.is_metric else UI_CONFIG.set_speed_width_imperial
+    map_x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2 + set_speed_width / 2
+    draw_map_info(map_x, rect.y + 45 + UI_CONFIG.set_speed_height + 24, self._font_bold, self._font_semi_bold)
 
     self._draw_current_speed(rect)
 
