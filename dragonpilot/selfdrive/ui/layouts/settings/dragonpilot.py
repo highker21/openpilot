@@ -26,6 +26,7 @@ from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.widgets.confirm_dialog import ConfirmDialog
 from openpilot.system.hardware import HARDWARE
 from dragonpilot.settings import SETTINGS, extract_depends_on_refs
+from dragonpilot.selfdrive.ui.map_download import MapDownload
 
 LITE = os.getenv("LITE") is not None
 MICI = HARDWARE.get_device_type() == "mici"
@@ -53,6 +54,7 @@ class DragonpilotLayout(Widget):
       self._brand = ui_state.CP.brand
       self._openpilot_longitudinal_control = ui_state.CP.openpilotLongitudinalControl
 
+    self._map_download = MapDownload()  # dp - mapd: placed right under the dp_ui_map_display toggle
     self._load_settings()
 
     self._reset_dp_conf_btn = button_item(
@@ -221,6 +223,8 @@ class DragonpilotLayout(Widget):
 
     widget = factory(**args)
     self._toggles[key] = widget
+    if key == "dp_ui_map_display":
+      self._toggles['btn_map_download'] = self._map_download.item
     if param_name:
       self._toggle_metadata[key] = {
         "widget": widget,

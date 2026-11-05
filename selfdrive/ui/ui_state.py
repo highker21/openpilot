@@ -77,6 +77,7 @@ class UIState:
         "liveTracks", # dp - for dp_ui_lead
         "modelExt",  # Jetlink runtime state
         "mapdOut",  # dp - mapd: display only
+        "mapdExtendedOut",  # dp - mapd: download progress
       ]
     )
 

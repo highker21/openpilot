@@ -11,7 +11,7 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
 from openpilot.selfdrive.ui.ui_state import JetlinkState
 from dragonpilot.selfdrive.ui import jetlink_ui
-from dragonpilot.selfdrive.ui.map_info import draw_map_info
+from dragonpilot.selfdrive.ui.map_info import draw_map_info, draw_road_name
 
 # Constants
 SET_SPEED_NA = 255
@@ -132,6 +132,7 @@ class HudRenderer(Widget):
     set_speed_width = UI_CONFIG.set_speed_width_metric if ui_state.is_metric else UI_CONFIG.set_speed_width_imperial
     map_x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2 + set_speed_width / 2
     draw_map_info(map_x, rect.y + 45 + UI_CONFIG.set_speed_height + 24, self._font_bold, self._font_semi_bold)
+    draw_road_name(rect)
 
     self._draw_current_speed(rect)
 
