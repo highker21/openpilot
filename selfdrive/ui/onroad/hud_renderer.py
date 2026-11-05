@@ -12,6 +12,7 @@ from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
 from openpilot.selfdrive.ui.ui_state import JetlinkState
 from dragonpilot.selfdrive.ui import jetlink_ui
 from dragonpilot.selfdrive.ui.map_info import draw_map_info, draw_road_name
+from dragonpilot.selfdrive.ui.turn_pause_hud import TurnPauseHud
 
 # Constants
 SET_SPEED_NA = 255
@@ -84,6 +85,7 @@ class HudRenderer(Widget):
 
     self._torque_bar = TorqueBar(scale=4.0)
     self._jetlink_icons = jetlink_ui.JetlinkIcons(JETLINK_BADGE_W, JETLINK_BADGE_H)
+    self._turn_pause_hud = TurnPauseHud()  # dp - turn pause
 
   def _update_state(self) -> None:
     """Update HUD state based on car state and controls state."""
@@ -133,6 +135,7 @@ class HudRenderer(Widget):
     map_x = rect.x + 60 + (UI_CONFIG.set_speed_width_imperial - set_speed_width) // 2 + set_speed_width / 2
     draw_map_info(map_x, rect.y + 45 + UI_CONFIG.set_speed_height + 24, self._font_bold, self._font_semi_bold)
     draw_road_name(rect)
+    self._turn_pause_hud.render(rect, self._font_semi_bold)
 
     self._draw_current_speed(rect)
 

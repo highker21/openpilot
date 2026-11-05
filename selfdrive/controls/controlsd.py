@@ -23,6 +23,7 @@ from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
 from dragonpilot import jetlink_adapter
+from dragonpilot.selfdrive.controls.lib.turn_pause import TurnPause, turn_speed_ms, turn_signal
 State = log.SelfdriveState.OpenpilotState
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
@@ -67,6 +68,11 @@ class Controls:
     # dp - jetlink: when the large model last swapped in (modelExt.bigModel rising), see state_control
     self.big_model_prev = False
     self.big_model_since = -1e9
+    # dp - turn pause: blinker below turn speed pauses lateral (params re-read once a second)
+    self.turn_pause = TurnPause()
+    self.turn_pause_enabled = False
+    self.turn_speed = turn_speed_ms(0)
+    self.turn_pause_params_frame = -1
 
   def update(self):
     self.sm.update(15)
@@ -123,8 +129,16 @@ class Controls:
         alka_ok = False
       self.alka_active = alka_ok
 
+    # dp - turn pause
+    if self.sm.frame - self.turn_pause_params_frame >= int(1. / DT_CTRL) or self.turn_pause_params_frame < 0:
+      self.turn_pause_params_frame = self.sm.frame
+      self.turn_pause_enabled = self.params.get_bool("dp_lat_turn_pause")
+      self.turn_speed = turn_speed_ms(int(self.params.get("dp_lat_lca_speed") or 0))
+    turn_paused = self.turn_pause.update(self.turn_pause_enabled, turn_signal(CS.leftBlinker, CS.rightBlinker), CS.vEgo,
+                                         CS.steeringAngleDeg, time.monotonic(), self.turn_speed)
+
     CC.latActive = (self.sm['selfdriveState'].active or self.alka_active) and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
-                   (not standstill or self.CP.steerAtStandstill)
+                   (not standstill or self.CP.steerAtStandstill) and not turn_paused
     CC.longActive = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents']) and self.CP.openpilotLongitudinalControl
 
     actuators = CC.actuators
