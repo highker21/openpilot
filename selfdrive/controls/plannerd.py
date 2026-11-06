@@ -18,7 +18,6 @@ def main():
 
   ldw = LaneDepartureWarning()
   longitudinal_planner = LongitudinalPlanner(CP)
-  pm = messaging.PubMaster(['longitudinalPlan', 'driverAssistance'])
   sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'liveParameters', 'radarState', 'modelV2', 'selfdriveState'],
                            poll='modelV2')
 
@@ -30,12 +29,18 @@ def main():
     dp_flags |= DPFlags.AEM
   if params.get_bool("dp_lon_apm"):
     dp_flags |= DPFlags.APM
+  if params.get_bool("dp_lon_curve_speed"):
+    dp_flags |= DPFlags.CURVE_SPEED
+
+  pm = messaging.PubMaster(['longitudinalPlan', 'driverAssistance'] + (['curveSpeedShadow'] if dp_flags & DPFlags.CURVE_SPEED else []))
 
   while True:
     sm.update()
     if sm.updated['modelV2']:
       longitudinal_planner.update(sm, dp_flags)
       longitudinal_planner.publish(sm, pm)
+      if dp_flags & DPFlags.CURVE_SPEED:
+        longitudinal_planner.publish_curve_speed_shadow(pm)
 
       ldw.update(sm.frame, sm['modelV2'], sm['carState'], sm['carControl'])
       msg = messaging.new_message('driverAssistance')

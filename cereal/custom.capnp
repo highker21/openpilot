@@ -82,7 +82,18 @@ struct CustomReserved14 @0xb057204d7deadf3f {
 struct CustomReserved15 @0xbd443b539493bc68 {
 }
 
-struct CustomReserved16 @0xfc6241ed8877b611 {
+# dp - curve speed shadow (sunnypilot vision SCC port): what it would ask for; nothing subscribes. Replaces CustomReserved16, same struct id
+# (if upstream dragonpilot ever uses CustomReserved16, this conflicts on merge: move it to another free slot)
+struct CurveSpeedShadow @0xfc6241ed8877b611 {
+  state @0 :UInt8;              # curve_speed.VisionState: 0 disabled 1 enabled 2 overriding 3 entering 4 turning 5 leaving
+  vEgo @1 :Float32;
+  vCruise @2 :Float32;          # m/s, the cruise speed actually used
+  vTarget @3 :Float32;          # m/s, speed the bend ahead allows at 2 m/s^2 lateral (255 = straight)
+  outputVTarget @4 :Float32;    # m/s, the cruise cap it would apply (255 = none)
+  aTarget @5 :Float32;          # m/s^2 it would ask for
+  predLatAcc @6 :Float32;       # p97 of the model's predicted lateral acceleration ahead
+  latAcc @7 :Float32;           # current lateral acceleration
+  aOut @8 :Float32;             # the planner's real aTarget this frame, for comparison
 }
 
 # dp - mapd v2.3.1 (pfeiferj/mapd, MIT): replaces CustomReserved17-19, same struct ids

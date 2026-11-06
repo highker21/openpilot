@@ -17,6 +17,7 @@ from openpilot.common.swaglog import cloudlog
 from dragonpilot.selfdrive.controls.lib.acm import ACM
 from dragonpilot.selfdrive.controls.lib.aem import AEM
 from dragonpilot.selfdrive.controls.lib.apm import APM
+from dragonpilot.selfdrive.controls.lib.curve_speed import CurveSpeed, ShadowGuard
 
 A_CRUISE_MAX_VALS = [1.0, 0.9, 0.8, 0.6]  # dp: softer launch (was [1.6, 1.2, 0.8, 0.6])
 A_CRUISE_MAX_BP = [0., 10.0, 25., 40.]
@@ -32,6 +33,7 @@ class DPFlags:
   ACM = 1
   AEM = 2
   APM = 2 ** 2
+  CURVE_SPEED = 2 ** 3
   pass
 
 
@@ -75,6 +77,9 @@ class LongitudinalPlanner:
     self.acm = ACM()
     self.aem = AEM()
     self.apm = APM()
+    self.curve_speed = CurveSpeed()
+    self.curve_speed_v_cruise = 0.
+    self.curve_speed_guard = ShadowGuard(cloudlog.exception)
 
   @staticmethod
   def parse_model(model_msg):
@@ -192,6 +197,33 @@ class LongitudinalPlanner:
       accel_clip[idx] = np.clip(accel_clip[idx], self.prev_accel_clip[idx] - 0.05, self.prev_accel_clip[idx] + 0.05)
     self.output_a_target = np.clip(output_a_target, accel_clip[0], accel_clip[1])
     self.prev_accel_clip = accel_clip
+
+    # dp - curve speed: shadow only, runs after the output is final; plannerd logs what it would ask for
+    if dp_flags & DPFlags.CURVE_SPEED:
+      self.curve_speed_guard.run(self.update_curve_speed_shadow, sm, v_ego, v_cruise)
+
+  def update_curve_speed_shadow(self, sm, v_ego, v_cruise):
+    self.curve_speed_v_cruise = v_cruise
+    self.curve_speed.update(True, sm['carControl'].enabled, sm['carControl'].cruiseControl.override, v_ego, sm['carState'].aEgo,
+                            sm['modelV2'].orientationRate.z, sm['modelV2'].velocity.x, sm['controlsState'].curvature)
+
+  def publish_curve_speed_shadow(self, pm):
+    self.curve_speed_guard.run(self._publish_curve_speed_shadow, pm)
+
+  def _publish_curve_speed_shadow(self, pm):
+    cs = self.curve_speed
+    msg = messaging.new_message('curveSpeedShadow')
+    out = msg.curveSpeedShadow
+    out.state = int(cs.state)
+    out.vEgo = float(cs.v_ego)
+    out.vCruise = float(self.curve_speed_v_cruise)
+    out.vTarget = float(min(cs.v_target, 255.))
+    out.outputVTarget = float(min(cs.output_v_target, 255.))
+    out.aTarget = float(cs.a_target)
+    out.predLatAcc = float(cs.max_pred_lat_acc)
+    out.latAcc = float(cs.current_lat_acc)
+    out.aOut = float(self.output_a_target)
+    pm.send('curveSpeedShadow', msg)
 
   def publish(self, sm, pm):
     plan_send = messaging.new_message('longitudinalPlan')

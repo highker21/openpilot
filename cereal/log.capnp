@@ -2569,7 +2569,7 @@ struct Event {
     customReserved13 @139 :Custom.CustomReserved13;
     customReserved14 @140 :Custom.CustomReserved14;
     customReserved15 @141 :Custom.CustomReserved15;
-    customReserved16 @142 :Custom.CustomReserved16;
+    curveSpeedShadow @142 :Custom.CurveSpeedShadow;  # dp - curve speed shadow
     mapdExtendedOut @143 :Custom.MapdExtendedOut;  # dp - mapd
     mapdIn @144 :Custom.MapdIn;  # dp - mapd
     mapdOut @145 :Custom.MapdOut;  # dp - mapd

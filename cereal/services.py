@@ -101,6 +101,8 @@ _services: dict[str, tuple] = {
   "mapdOut": (True, 20., 20, QueueSize.MEDIUM),
   "mapdExtendedOut": (False, 1., None, QueueSize.MEDIUM),
   "mapdIn": (False, 0., None, QueueSize.MEDIUM),
+  # dp - curve speed shadow (log only; nothing subscribes)
+  "curveSpeedShadow": (True, 20., 10),
 }
 SERVICE_LIST = {name: Service(*vals) for
                 idx, (name, vals) in enumerate(_services.items())}
